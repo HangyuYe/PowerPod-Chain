@@ -25,7 +25,6 @@ class Block:
         # 计算字符串的哈希
         return keccak.new(digest_bits=256, data=header_string).hexdigest()
 
-
     def __str__(self):
         return (f"Index: {self.index}\n"
                 f"Previous Hash: {self.previous_hash}\n"
