@@ -5,8 +5,8 @@ from Crypto.Hash import keccak
 
 
 class Block:
-    def __init__(self, index, previous_hash, timestamp, data):
-        self.index = index
+    def __init__(self, height, previous_hash, timestamp, data):
+        self.height = height
         self.previous_hash = previous_hash
         self.timestamp = timestamp
         self.data = data
@@ -15,7 +15,7 @@ class Block:
     def calculate_hash(self):
         # 创建一个包含区块头数据的字典
         header = {
-            'index': self.index,
+            'height': self.height,
             'previous_hash': self.previous_hash,
             'timestamp': self.timestamp,
             'data': self.data,
@@ -26,7 +26,7 @@ class Block:
         return keccak.new(digest_bits=256, data=header_string).hexdigest()
 
     def __str__(self):
-        return (f"Index: {self.index}\n"
+        return (f"Height: {self.height}\n"
                 f"Previous Hash: {self.previous_hash}\n"
                 f"Timestamp: {self.timestamp}\n"
                 f"Data: {self.data}\n"
@@ -45,8 +45,8 @@ class Blockchain:
         genesis_block_hash = keccak.new(digest_bits=256)
         genesis_block_hash.update((0).to_bytes(1, byteorder="big"))
         timestamp = int(time.time())
-        print("Genesis Block Hash:", genesis_block_hash.hexdigest())
         block = Block(0, genesis_block_hash.hexdigest(), timestamp, "Genesis Block")
+        print("Genesis Block Hash:", block.hash)
         return block
 
     def get_latest_block(self):
@@ -57,21 +57,16 @@ class Blockchain:
         self.chain.append(new_block)
 
     def schedule_block_addition(self):
-        threading.Timer(600, self.auto_add_block).start()  # every 10 seconds, add a new block
+        threading.Timer(30, self.auto_add_block).start() # Every 5 minutes, add a new block
 
     def auto_add_block(self):
         index = len(self.chain)
         previous_hash = self.get_latest_block().hash
         timestamp = int(time.time())
-        data = f"Block {index} Data"
+        data = "0x0"
         new_block = Block(index, previous_hash, timestamp, data)
         self.add_block(new_block)
         print("New Block Added:")
         print(new_block)
         self.schedule_block_addition()  # Schedule the next block addition
 
-
-# Example usage
-blockchain = Blockchain()
-
-# The blockchain will now automatically add a new block every 10 minutes and print the block's information
